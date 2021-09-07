@@ -1,0 +1,20 @@
+module.exports={
+    devServer:{
+        proxy:{
+            '/migu':{
+                target:'http://movie.miguvideo.com',
+                changeOrigin:true,
+                pathRewrite:{
+                    '^/migu':''
+                }
+            },
+            '/maoyan':{
+                target:'http://m.maoyan.com',
+                changeOrigin:true,
+                pathRewrite:{
+                    '^/maoyan':''
+                }
+            }
+        }
+    }
+}
