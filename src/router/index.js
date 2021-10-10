@@ -15,8 +15,6 @@ import ComingSoon from "../views/Home/Fimls/ComingSoon.vue"
 import NowPlaying from "../views/Home/Fimls/NowPlaying.vue"
 
 
-
-
 Vue.use(VueRouter)
 
 const router = new VueRouter({
@@ -31,6 +29,7 @@ const router = new VueRouter({
                     },
                     children: [{
                             path: 'nowPlaying',
+                            name:'nowPlaying',
                             component: NowPlaying,
                             meta: {
                                 tabId: 1
@@ -38,6 +37,7 @@ const router = new VueRouter({
                         },
                         {
                             path: 'comingSoon',
+                            name:'comingSoon',
                             component: ComingSoon,
                             meta: {
                                 tabId: 1

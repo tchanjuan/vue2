@@ -1,6 +1,6 @@
 <template>
   <div class="page-home">
-    <div class="page-home__film">
+    <div class="page-home__film" ref="myView">
       <router-view></router-view>
     </div>
 
@@ -84,9 +84,8 @@ export default {
     overflow-y: auto;
   }
   .mint-tabbar {
-    position: fixed;
-    background-color: #fff;
-    margin-bottom: 0;
+    position: sticky;
+    // margin-top:20px;
 
     .mint-tab-item {
       color: #797d82;
