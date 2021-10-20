@@ -1,17 +1,17 @@
 import Vue from 'vue'
-import router from './router'
-import MintUI from 'mint-ui'
-import 'mint-ui/lib/style.css'
 import App from './App.vue'
+import router from './router'
+
+
+import {InfiniteScroll,Spinner,Header,Search} from 'mint-ui';
 import './global.scss'
-import { Header,InfiniteScroll,Spinner } from 'mint-ui';
 
 
-
-Vue.use(MintUI)
-Vue.component(Header.name, Header);
-Vue.component(InfiniteScroll);
+Vue.use(InfiniteScroll);
 Vue.component(Spinner.name, Spinner);
+Vue.component(Header.name, Header);
+Vue.component(Search.name, Search);
+
 Vue.config.productionTip = false
 
 new Vue({
