@@ -5,7 +5,7 @@
     </mt-header>
     <mt-search v-model="value" placeholder="输入城市名或拼音"></mt-search>
     <div class="main">
-      <div class="left">
+       <div class="left">
         <div class="hotcitys">
           <p>热门城市</p>
           <ul>
@@ -57,7 +57,10 @@ import cityList from "../api/city.js";
 export default {
   name: "City",
   data() {
-    return {};
+    return {
+      value:"",
+      cities:[]
+    };
   },
   computed: {},
   methods: {
@@ -67,6 +70,7 @@ export default {
     created() {
       cityList().then((response) => {
         let res = response.data;
+        // console.log(res );
         this.cities = res.data.cities;
       });
     },
@@ -80,6 +84,10 @@ export default {
   display: flex;
   flex-direction: column;
   .mint-header {
+    position:fixed;
+    z-index:999;
+    width:100%;
+    height:44px;
     background: #fff;
     color: black;
     font-size: 18px;
@@ -89,16 +97,26 @@ export default {
     color: #000;
   }
   .mint-search {
+    position:fixed;
+    width: 100%;
+    top:44px;
+    z-index:9999;
     height: auto;
   }
   .main {
     flex: 1;
+    width:100%;
+    position:relative;
+  margin-top:85px;
+  padding-top:14px;;
     display: flex;
     overflow: hidden;
     .left {
-      position:relative;  
       flex: 1;
       overflow-y: auto;
+      .hotcitys{
+        margin-top:10px;
+      }
       p {
         padding-left: 10px;
         background-color: #b3b9c0;
@@ -114,7 +132,6 @@ export default {
     }
     .right {
       display: flex;
-      justify-content: center;
       align-items: center; 
       width: 18px;
       li{
