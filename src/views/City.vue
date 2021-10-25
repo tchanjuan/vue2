@@ -5,75 +5,111 @@
     </mt-header>
     <mt-search v-model="value" placeholder="输入城市名或拼音"></mt-search>
     <div class="main">
-       <div class="left">
+      <div class="left" ref="left" v-show="!value">
         <div class="hotcitys">
           <p>热门城市</p>
           <ul>
-            <li>深圳</li>
-            <li>上海</li>
-            <li>北京</li>
-            <li>天津</li>
+            <li v-for="city in hotcityList" :key="city.cityId">
+              {{ city.name }}
+            </li>
           </ul>
         </div>
-        <p>A</p>
-        <ul>
-          <li>安徽</li>
-          <li>安徽</li>
-          <li>安徽</li>
-          <li>安徽</li>
-          <li>安徽</li>
-        </ul>
-        <p>B</p>
-        <ul>
-          <li>北京</li>
-          <li>北京</li>
-          <li>北京</li>
-          <li>北京</li>
-        </ul>
-        <p>C</p>
-        <ul>
-          <li>常德</li>
-          <li>常德</li>
-          <li>常德</li>
-          <li>常德</li>
-        </ul>
+        <div class="cityList" v-for="item in cityList" :key="item.py"
+        :ref="`list-${item.py}`"
+        >
+          <p class="py">
+            {{ item.py }}
+          </p>
+          <ul>
+            <li v-for="city in item.list" :key="city.cityId">
+              {{ city.name }}
+            </li>
+          </ul>
+        </div>
       </div>
       <div class="right">
         <ul>
-          <li>A</li>
-          <li>B</li>
-          <li>C</li>
-          <li>D</li>
-          <li>E</li>
+          <li v-for="py in pys" :key="py" @click="fn1(py)">{{ py }}</li>
         </ul>
       </div>
+    </div>
+    <div class="search" v-show="value">
+      <div class="left">
+        <div>
+          <ul>
+            <li v-for="item in searchList" :key="item.cityId">{{item.name}}</li>
+          </ul>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
 import "../css/iconfont.css";
-import cityList from "../api/city.js";
+import getCityList from "../api/city.js";
 export default {
   name: "City",
   data() {
     return {
-      value:"",
-      cities:[]
+      value: "",
+      cities: [],
     };
   },
-  computed: {},
+  computed: {
+    //获取城市列表的排序
+    cityList() {
+      let result = [];
+      this.cities.forEach((item) => {
+        let py = item.pinyin.charAt(0).toUpperCase();
+        let index = result.findIndex((city) => city.py === py);
+        if (index > -1) {
+          result[index].list.push(item);
+        } else {
+          let obj = {
+            py,
+            list: [item],
+          };
+          result.push(obj);
+        }
+
+      });
+      return result.sort((a, b) => a.py.charCodeAt() - b.py.charCodeAt());
+    },
+    hotcityList() {
+      console.log(123);
+      let arr = this.cities.filter((item) => item.isHot);
+      return arr;
+    },
+    pys() {
+      return this.cityList.map(item=> item.py);
+    },
+    searchList(){
+      return this.cities.filter(item=>{
+        return item.name.indexOf(this.value)>-1||item.pinyin.indexOf(this.value)>-1
+      })
+    }
+  },
   methods: {
     goBack() {
+      // console.log(456);
       this.$router.back();
     },
-    created() {
-      cityList().then((response) => {
-        let res = response.data;
-        // console.log(res );
-        this.cities = res.data.cities;
-      });
-    },
+    fn1(py){
+      console.log(py);
+    
+      let top=this.$refs[`list-${py}`][0].offsetTop
+      this.$refs['left'].scrollTop=top
+        console.log(this.$refs[`list-${py}`][0]);
+    }
+  },
+  created() {
+    getCityList().then((response) => {
+      let res = response.data;
+      this.cities = res.data.cities;
+      console.log(this.cities);
+    });
   },
 };
 </script>
@@ -84,10 +120,10 @@ export default {
   display: flex;
   flex-direction: column;
   .mint-header {
-    position:fixed;
-    z-index:999;
-    width:100%;
-    height:44px;
+    position: fixed;
+    z-index: 999;
+    width: 100%;
+    height: 44px;
     background: #fff;
     color: black;
     font-size: 18px;
@@ -97,25 +133,27 @@ export default {
     color: #000;
   }
   .mint-search {
-    position:fixed;
+    position: fixed;
     width: 100%;
-    top:44px;
-    z-index:9999;
+    top: 44px;
+    z-index: 9999;
     height: auto;
   }
   .main {
-    flex: 1;
-    width:100%;
-    position:relative;
-  margin-top:85px;
-  padding-top:14px;;
     display: flex;
+    flex: 1;
+    flex-direction: row;
+    width: 100%;
+    position: relative;
+    margin-top: 85px;
+    padding-top: 14px;
     overflow: hidden;
     .left {
       flex: 1;
       overflow-y: auto;
-      .hotcitys{
-        margin-top:10px;
+      margin-right: 18px;;
+      .hotcitys {
+        margin-top: 10px;
       }
       p {
         padding-left: 10px;
@@ -131,12 +169,16 @@ export default {
       }
     }
     .right {
-      display: flex;
-      align-items: center; 
+      position: fixed;
+      margin-top: 94px;
+      right:0;
+      text-align: center;
+      justify-content: center;
+      
       width: 18px;
-      li{
-        width:18px;
-        height:18px;
+      li {
+        width: 18px;
+        height: 18px;
         text-align: center;
       }
     }
