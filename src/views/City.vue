@@ -1,15 +1,17 @@
 <template>
   <div class="container">
     <mt-header title="当前城市-">
-      <i slot="left" class="iconfont icon-close" @click="goBack"></i>
+      <i slot="left" class="iconfont icon-close"></i>
     </mt-header>
-    <mt-search v-model="value" placeholder="输入城市名或拼音"></mt-search>
-    <div class="main">
-      <div class="left" ref="left" v-show="!value">
-        <div class="hotcitys">
+    <mt-search v-model="value"></mt-search>
+    <div class="main" v-show="!value">
+      <div class="left" ref="left">
+        <div class="cityList"
+        
+        >
           <p>热门城市</p>
           <ul>
-            <li v-for="city in hotcityList" :key="city.cityId">
+            <li v-for="city in hotCityList" :key="city.cityId">
               {{ city.name }}
             </li>
           </ul>
@@ -17,9 +19,7 @@
         <div class="cityList" v-for="item in cityList" :key="item.py"
         :ref="`list-${item.py}`"
         >
-          <p class="py">
-            {{ item.py }}
-          </p>
+          <p class="py">{{ item.py }}</p>
           <ul>
             <li v-for="city in item.list" :key="city.cityId">
               {{ city.name }}
@@ -33,24 +33,25 @@
         </ul>
       </div>
     </div>
-    <div class="search" v-show="value">
+    <!-- 搜索结果 -->
+    <div class="main" v-show="value">
       <div class="left">
-        <div>
+        <div class="cityList">
           <ul>
-            <li v-for="item in searchList" :key="item.cityId">{{item.name}}</li>
+            <li v-for="city in searchList" :key="city.cityId">
+              {{ city.name }}
+            </li>
           </ul>
         </div>
       </div>
-
     </div>
   </div>
 </template>
 
 <script>
+import getCityList from "../api/city";
 import "../css/iconfont.css";
-import getCityList from "../api/city.js";
 export default {
-  name: "City",
   data() {
     return {
       value: "",
@@ -58,60 +59,58 @@ export default {
     };
   },
   computed: {
-    //获取城市列表的排序
     cityList() {
       let result = [];
       this.cities.forEach((item) => {
         let py = item.pinyin.charAt(0).toUpperCase();
-        let index = result.findIndex((city) => city.py === py);
+        let index = result.findIndex(item => item.py === py);
         if (index > -1) {
           result[index].list.push(item);
         } else {
           let obj = {
-            py,
+            py: py,
             list: [item],
           };
           result.push(obj);
         }
-
       });
       return result.sort((a, b) => a.py.charCodeAt() - b.py.charCodeAt());
     },
-    hotcityList() {
-      console.log(123);
-      let arr = this.cities.filter((item) => item.isHot);
+    hotCityList() {
+      // console.log(123);
+      let arr = this.cities.filter(item => item.isHot);
+      // console.log(arr)
       return arr;
     },
     pys() {
-      return this.cityList.map(item=> item.py);
+      return this.cityList.map(item => item.py);
     },
-    searchList(){
-      return this.cities.filter(item=>{
-        return item.name.indexOf(this.value)>-1||item.pinyin.indexOf(this.value)>-1
-      })
-    }
+    searchList() {
+      return this.cities.filter(item => {
+        return (
+          item.name.indexOf(this.value) > -1 ||
+          item.pinyin.indexOf(this.value) > -1
+        );
+      });
+    },
   },
   methods: {
-    goBack() {
-      // console.log(456);
-      this.$router.back();
-    },
     fn1(py){
-      console.log(py);
-    
+      //拿到点击py对应的城市列表实例距离顶部的高度
       let top=this.$refs[`list-${py}`][0].offsetTop
+      //然后把该高度就是整个左边滚动的距离
       this.$refs['left'].scrollTop=top
-        console.log(this.$refs[`list-${py}`][0]);
     }
   },
+
   created() {
-    getCityList().then((response) => {
-      let res = response.data;
-      this.cities = res.data.cities;
-      console.log(this.cities);
-    });
-  },
-};
+    //获取城市数据
+    getCityList().then(response => {
+      let res = response.data
+      this.cities = res.data.cities
+    })
+  }
+}
 </script>
 
 <style lang="scss">
@@ -121,61 +120,68 @@ export default {
   flex-direction: column;
   .mint-header {
     position: fixed;
-    z-index: 999;
     width: 100%;
     height: 44px;
-    background: #fff;
-    color: black;
-    font-size: 18px;
-  }
-  .iconfont {
-    font-size: 24px;
+    line-height: 44px;
+    z-index: 9999;
     color: #000;
+    background: #fff;
+    .mint-header-title {
+      font-size: 18px;
+    }
+    .iconfont {
+      font-size: 18px;
+    }
   }
   .mint-search {
-    position: fixed;
+    margin-top: 44px;
     width: 100%;
-    top: 44px;
+    position: fixed;
     z-index: 9999;
     height: auto;
   }
   .main {
-    display: flex;
     flex: 1;
-    flex-direction: row;
-    width: 100%;
-    position: relative;
-    margin-top: 85px;
-    padding-top: 14px;
+    display: flex;
     overflow: hidden;
+    position: relative;
+    margin-top: 94px;
     .left {
+      position:relative;
       flex: 1;
       overflow-y: auto;
-      margin-right: 18px;;
-      .hotcitys {
-        margin-top: 10px;
+      .hotCity {
+        padding-left: 14px;
+        p {
+          height: 44px;
+          line-height: 44px;
+        }
+        li {
+          height: 44px;
+          line-height: 44px;
+        }
       }
-      p {
-        padding-left: 10px;
-        background-color: #b3b9c0;
-        height: 30px;
-        line-height: 30px;
-      }
-      li {
-        margin-left: 20px;
-        height: 48px;
-        line-height: 48px;
-        border-bottom: 1px solid rgb(216, 191, 191);
+      .cityList {
+        p {
+          height: 34px;
+          padding-left: 14px;
+          line-height: 34px;
+          background: #ccc;
+        }
+        li {
+          margin-left: 14px;
+          height: 34px;
+          line-height: 34px;
+          border-bottom: 1px solid #ccc;
+        }
       }
     }
+
     .right {
-      position: fixed;
-      margin-top: 94px;
-      right:0;
+      margin-top: 88px;
+      width: 18px;
       text-align: center;
       justify-content: center;
-      
-      width: 18px;
       li {
         width: 18px;
         height: 18px;
